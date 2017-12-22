@@ -144,11 +144,11 @@ var parseCommandLineOptions = function(argv) {
 			}
 			process.exit(0);
 		} else if (match = arg.match(/^--basedon=(.*)/)) {
-			var key = 'branch.' + shortname + '".basedon';
+			var key = 'branch.' + shortname + '.basedon';
 			callGitSync(['config', key, arg]);
 			process.exit(0);
 		} else if (arg == '--basedon') {
-			var key = 'branch.' + shortname + '".basedon';
+			var key = 'branch.' + shortname + '.basedon';
 			if (i + 1 == argv.length)
 				console.log(gitConfig(key));
 			else if (i + 2 == argv.length)
