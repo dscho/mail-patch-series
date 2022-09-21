@@ -48,11 +48,11 @@
 # stored in the config, and used when sending the next iteration.
 #
 # Furthermore, for a second or later iteration of a patch series, this script
-# will insert an interdiff, and reply to the cover letter of the previous
+# will insert an range-diff, and reply to the cover letter of the previous
 # iteration. It stores the relevant information in local tags whose names
 # reflect the branch name and the iterarion. This tag is relevant in particular
-# for the interdiff, as that revision may need to be rebased for a proper
-# interdiff (in this case, a tag is generated whose name is of the form
+# for the range-diff, as that revision may need to be rebased for a proper
+# range-diff (in this case, a tag is generated whose name is of the form
 # <branch>-v<iteration>-rebased).
 #
 # Lastly, if the mail.publishtoremote is set in the config, the branch as well
@@ -202,7 +202,7 @@ then
 	test -z "$rfc" ||
 	subject_prefix="--subject-prefix=\"PATCH/RFC\""
 	in_reply_to=
-	interdiff=
+	range_diff=
 else
 	test -n "$(git rev-list $branchname...$latesttag)" ||
 	die "Branch $shortname was already submitted: $latesttag"
@@ -216,49 +216,7 @@ else
 		sed -n -e 's|.*https://public-inbox.org/git/|--in-reply-to=|p' \
 			-e 's|.*http://mid.gmane.org/|--in-reply-to=|p')"
 
-	if test -z "$(git rev-list $latesttag..$upstreambranch)"
-	then
-		interdiff="$(git diff $latesttag..$branchname)"
-	else
-		rebasedtag=$latesttag-rebased
-		if git rev-parse --verify $rebasedtag >/dev/null 2>&1
-		then
-			if test -n "$(git rev-list \
-				$rebasedtag..$upstreambranch)"
-			then
-				echo "Re-rebasing $rebasedtag" >&2
-				git checkout $rebasedtag^0 &&
-				git rebase $upstreambranch &&
-				git -c core.editor=true \
-					tag -f -a ${rebasedtag#refs/tags/} &&
-				if test -n "$publishtoremote"
-				then
-					git push "$publishtoremote" \
-						+"$rebasedtag" ||
-					echo "Couldn't publish $rebasedtag" >&2
-				fi &&
-				git checkout $shortname ||
-				die "Could not re-rebase $rebasedtag"
-			fi
-		else
-			# Need rebasing
-			echo "Rebasing $latesttag" >&2
-			git checkout $latesttag^0 &&
-			git rebase $upstreambranch &&
-			git cat-file tag $latesttag |
-			sed '1,/^$/d' |
-			git tag -F - -a ${rebasedtag#refs/tags/} &&
-			if test -n "$publishtoremote"
-			then
-				git push "$publishtoremote" "$rebasedtag" ||
-				echo "Couldn't publish $rebasedtag" >&2
-			fi &&
-			git checkout $shortname ||
-			die "Could not re-rebase $rebasedtag"
-		fi
-		interdiff="$(git diff $rebasedtag..$branchname)"
-	fi ||
-	die "Could not generate interdiff"
+	range_diff="--range-diff=$upstreambranch..$latesttag"
 fi
 
 # Auto-detect whether we need a cover letter
@@ -272,7 +230,7 @@ then
 fi
 
 mbox="$(eval git format-patch $subject_prefix $in_reply_to \
-	$cover_letter $to $cc $patience \
+	$cover_letter $to $cc $patience $range_diff \
 	--add-header='"Content-Type: text/plain; charset=UTF-8"' \
 	--add-header='"Fcc: Sent"' --thread --stdout \
 	--base $upstreambranch \
@@ -371,20 +329,6 @@ printf "%s\n\nSubmitted-As: https://public-inbox.org/git/%s\n%s" \
 git tag -F - $(test -z "$redo" || echo "-f") -a \
 	"$shortname-v$patch_no" ||
 die "Could not tag $shortname-v$patch_no"
-
-# Insert interdiff
-test -z "$interdiff" ||
-mbox="$(echo "$mbox" |
-	sed "$(if test -z "$cover_letter"
-		then
-			echo '/^---$/{:2;n;/./b2;'
-		else
-			echo '/^-- $/{'
-		fi)"'i'"Interdiff vs v$(($patch_no-1)):"'\
-\
-'"$(echo "$interdiff" | sed -e 's/^/ /' -e 's/\\/&&/g' -e 's/$/\\/')"'
-
-:1;n;b1}')"
 
 # Send (originally: automatically add to drafts)
 echo "$mbox" | git send-mbox ||
