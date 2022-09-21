@@ -148,7 +148,7 @@ test -n "$(git config remote."$publishtoremote".url)" ||
 die "No valid remote: $publishtoremote"
 
 # For now, only the Git and Cygwin projects are supported
-if git rev-parse --verify e83c5163316f89bfbde >/dev/null
+if git rev-parse --verify e83c5163316f89bfbde >/dev/null 2>&1
 then
 	# Git
 	to="--to=git@vger.kernel.org"
@@ -158,7 +158,7 @@ then
 	upstreambranch=upstream/next
 	test -z "$(git rev-list $branchname..$upstreambranch)" ||
 	upstreambranch=upstream/master
-elif git rev-parse --verify a3acbf46947e52ff596 >/dev/null
+elif git rev-parse --verify a3acbf46947e52ff596 >/dev/null 2>&1
 then
 	# Cygwin
 	to="--to=cygwin-patches@cygwin.com"
