@@ -267,8 +267,36 @@ fi
 
 # Fix Subject line
 test -z "$cover_letter" ||
-mbox="$(echo "$mbox" | sed -e \
-	'/^Subject:/{:1;N;/[^\n]$/b1;N;N;N;N;s/^\([^]]*\] \)\*\*\* [^\n]*\(.*\)\n\n\*\*\*[^\n]*\n\n\(.*\)\n$/\1\3\2\n/;:2;n;b2}')" ||
+mbox="$(echo "$mbox" | sed -e '/^Subject: .*\*\*\*/{
+	# keep on reading the headers
+	:1
+	N
+	/[^\n]$/b1
+
+	# append the first paragraph of the body
+	N
+	:2
+	# delete "*** BLURB HERE ***" lines, if any
+	/\n\*\*\*/{
+		s/\n\*\*\*.*//
+		n
+		b2
+	}
+	N
+	/[^\n]$/{
+		# use a leading space as continuation for a multi-line paragraph
+		s/\n\([^\n]*\)$/\n \1/
+		b2
+	}
+
+	# move the first paragraph of the body to the subject line
+	s/^\([^]]*\] \)[^\n]*\(.*\)\n\n\(.*\)\n$/\1\3\2\n/
+
+	# keep reading until the end, without processing any line starting with "Subject:"
+	:3
+	n
+	b3
+}')" ||
 die "Could not post-process cover letter"
 
 # tag
