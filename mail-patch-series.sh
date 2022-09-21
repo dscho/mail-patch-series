@@ -154,9 +154,9 @@ then
 	to="--to=git@vger.kernel.org"
 	cc="--cc=\"Junio C Hamano <gitster@pobox.com>\""
 	upstreambranch=upstream/pu
-	test -z "$(git rev-list $branchname..$upstreambranch)" ||
+	test 0 -eq "$(git rev-list --count $branchname..$upstreambranch)" ||
 	upstreambranch=upstream/next
-	test -z "$(git rev-list $branchname..$upstreambranch)" ||
+	test 0 -eq "$(git rev-list --count $branchname..$upstreambranch)" ||
 	upstreambranch=upstream/master
 elif git rev-parse --verify a3acbf46947e52ff596 >/dev/null 2>&1
 then
@@ -184,7 +184,7 @@ then
 	upstreambranch="$basedon"
 fi
 
-test -z "$(git rev-list $branchname..$upstreambranch)" ||
+test 0 -eq "$(git rev-list --count $branchname..$upstreambranch)" ||
 die "Branch $shortname is not rebased to $upstreambranch"
 
 # Cc: from config
@@ -204,7 +204,7 @@ then
 	in_reply_to=
 	range_diff=
 else
-	test -n "$(git rev-list $branchname...$latesttag)" ||
+	test 0 -lt "$(git rev-list --count $branchname...$latesttag)" ||
 	die "Branch $shortname was already submitted: $latesttag"
 
 	patch_no=$((${latesttag##*-v}+1))
