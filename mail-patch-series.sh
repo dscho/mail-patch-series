@@ -213,7 +213,8 @@ else
 	subject_prefix="--subject-prefix=\"PATCH/RFC v$patch_no\""
 	in_reply_to="$(git cat-file tag "$latesttag" |
 		tac | sed '/^$/q' |
-		sed -n -e 's|.*https://public-inbox.org/git/|--in-reply-to=|p' \
+		sed -n -e 's|.*https://lore.kernel.org/git/|--in-reply-to=|p' \
+			-e 's|.*https://public-inbox.org/git/|--in-reply-to=|p' \
 			-e 's|.*http://mid.gmane.org/|--in-reply-to=|p')"
 
 	range_diff="--range-diff=$upstreambranch..$latesttag"
@@ -348,12 +349,12 @@ then
 	fi
 fi
 
-printf "%s\n\nSubmitted-As: https://public-inbox.org/git/%s\n%s" \
+printf "%s\n\nSubmitted-As: https://lore.kernel.org/git/%s\n%s" \
 	"$tagmessage" \
 	"$(echo "$mbox" | sed -n \
 		'/^Message-Id: /{s/[^:]*: <\(.*\)>/\1/p;q}')" \
 	"$(echo "$in_reply_to" | tr ' ' '\n' | sed -n \
-	   's|--in-reply-to=|In-Reply-To: https://public-inbox.org/git/|p')" |
+	   's|--in-reply-to=|In-Reply-To: https://lore.kernel.org/git/|p')" |
 git tag -F - $(test -z "$redo" || echo "-f") -a \
 	"$shortname-v$patch_no" ||
 die "Could not tag $shortname-v$patch_no"
