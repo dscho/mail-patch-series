@@ -153,6 +153,7 @@ then
 	# Git
 	to="--to=git@vger.kernel.org"
 	cc="--cc=\"Junio C Hamano <gitster@pobox.com>\""
+	mid_url=https://lore.kernel.org/git
 	upstreambranch=upstream/pu
 	test 0 -eq "$(git rev-list --count $branchname..$upstreambranch)" ||
 	upstreambranch=upstream/next
@@ -163,6 +164,7 @@ then
 	# Cygwin
 	to="--to=cygwin-patches@cygwin.com"
 	cc=
+	mid_url=https://inbox.sourceware.org/cygwin-patches
 	upstreambranch=cygwin/master
 else
 	die "Unrecognized project"
@@ -214,6 +216,7 @@ else
 	in_reply_to="$(git cat-file tag "$latesttag" |
 		tac | sed '/^$/q' |
 		sed -n -e 's|.*https://lore.kernel.org/git/|--in-reply-to=|p' \
+			-e 's|.*https://inbox.sourceware.org/cygwin-patches/|--in-reply-to=|p' \
 			-e 's|.*https://public-inbox.org/git/|--in-reply-to=|p' \
 			-e 's|.*http://mid.gmane.org/|--in-reply-to=|p')"
 
@@ -349,12 +352,12 @@ then
 	fi
 fi
 
-printf "%s\n\nSubmitted-As: https://lore.kernel.org/git/%s\n%s" \
+printf "%s\n\nSubmitted-As: $mid_url/%s\n%s" \
 	"$tagmessage" \
 	"$(echo "$mbox" | sed -n \
 		'/^Message-Id: /{s/[^:]*: <\(.*\)>/\1/p;q}')" \
 	"$(echo "$in_reply_to" | tr ' ' '\n' | sed -n \
-	   's|--in-reply-to=|In-Reply-To: https://lore.kernel.org/git/|p')" |
+	   's|--in-reply-to=|In-Reply-To: '"$mid_url"'/|p')" |
 git tag -F - $(test -z "$redo" || echo "-f") -a \
 	"$shortname-v$patch_no" ||
 die "Could not tag $shortname-v$patch_no"
