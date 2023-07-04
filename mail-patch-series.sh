@@ -188,8 +188,8 @@ then
 	upstreambranch="$basedon"
 fi
 
-test 0 -eq "$(git rev-list --count $branchname..$upstreambranch)" ||
-die "Branch $shortname is not rebased to $upstreambranch"
+# test 0 -eq "$(git rev-list --count $branchname..$upstreambranch)" ||
+# die "Branch $shortname is not rebased to $upstreambranch"
 
 # Cc: from config
 cc="$cc $(git config --get-all branch.$shortname.cc |
@@ -239,7 +239,7 @@ mbox="$(eval git format-patch $subject_prefix $in_reply_to \
 	$cover_letter $to $cc $patience $range_diff \
 	--add-header='"Content-Type: text/plain; charset=UTF-8"' \
 	--add-header='"Fcc: Sent"' --thread --stdout \
-	--base $upstreambranch \
+	--base $(git merge-base HEAD $upstreambranch) \
 	$upstreambranch..$branchname)" ||
 die "Could not generate mailbox"
 
