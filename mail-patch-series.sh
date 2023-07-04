@@ -357,7 +357,7 @@ fi
 printf "%s\n\nSubmitted-As: $mid_url/%s\n%s" \
 	"$tagmessage" \
 	"$(echo "$mbox" | sed -n \
-		'/^Message-Id: /{s/[^:]*: <\(.*\)>/\1/p;q}')" \
+		'/^Message-I[Dd]: /{s/[^:]*: <\(.*\)>/\1/p;q}')" \
 	"$(echo "$in_reply_to" | tr ' ' '\n' | sed -n \
 	   's|--in-reply-to=|In-Reply-To: '"$mid_url"'/|p')" |
 git tag -F - $(test -z "$redo" || echo "-f") -a \
