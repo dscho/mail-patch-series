@@ -165,6 +165,8 @@ then
 	to="--to=cygwin-patches@cygwin.com"
 	cc=
 	mid_url=https://inbox.sourceware.org/cygwin-patches
+	upstreambranch=cygwin/cygwin-3_3-branch
+	test 0 -eq "$(git rev-list --count $branchname..$upstreambranch)" ||
 	upstreambranch=cygwin/master
 else
 	die "Unrecognized project"
