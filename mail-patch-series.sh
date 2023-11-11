@@ -153,7 +153,7 @@ then
 	# Git
 	to="--to=git@vger.kernel.org"
 	cc="--cc=\"Junio C Hamano <gitster@pobox.com>\""
-	mid_url=https://lore.kernel.org/git
+	mid_url=https://lore.kernel.org/git/
 	upstreambranch=upstream/pu
 	test 0 -eq "$(git rev-list --count $branchname..$upstreambranch)" ||
 	upstreambranch=upstream/next
@@ -164,7 +164,7 @@ then
 	# Cygwin
 	to="--to=cygwin-patches@cygwin.com"
 	cc=
-	mid_url=https://inbox.sourceware.org/cygwin-patches
+	mid_url=https://inbox.sourceware.org/cygwin-patches/
 	upstreambranch=cygwin/cygwin-3_3-branch
 	test 0 -eq "$(git rev-list --count $branchname..$upstreambranch)" ||
 	upstreambranch=cygwin/master
@@ -354,13 +354,13 @@ then
 	fi
 fi
 
-printf "%s\n\nSubmitted-As: %s/%s\n%s" \
+printf "%s\n\nSubmitted-As: %s%s\n%s" \
 	"$tagmessage" \
 	"$mid_url" \
 	"$(echo "$mbox" | sed -n \
 		'/^Message-I[Dd]: /{s/[^:]*: <\(.*\)>/\1/p;q}')" \
 	"$(echo "$in_reply_to" | tr ' ' '\n' | sed -n \
-	   's|--in-reply-to=|In-Reply-To: '"$mid_url"'/|p')" |
+	   's|--in-reply-to=|In-Reply-To: '"$mid_url"'|p')" |
 git tag -F - $(test -z "$redo" || echo "-f") -a \
 	"$shortname-v$patch_no" ||
 die "Could not tag $shortname-v$patch_no"
