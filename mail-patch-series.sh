@@ -354,8 +354,9 @@ then
 	fi
 fi
 
-printf "%s\n\nSubmitted-As: $mid_url/%s\n%s" \
+printf "%s\n\nSubmitted-As: %s/%s\n%s" \
 	"$tagmessage" \
+	"$mid_url" \
 	"$(echo "$mbox" | sed -n \
 		'/^Message-I[Dd]: /{s/[^:]*: <\(.*\)>/\1/p;q}')" \
 	"$(echo "$in_reply_to" | tr ' ' '\n' | sed -n \
