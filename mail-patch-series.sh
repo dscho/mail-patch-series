@@ -168,6 +168,13 @@ then
 	upstreambranch=cygwin/cygwin-3_3-branch
 	test 0 -eq "$(git rev-list --count $branchname..$upstreambranch)" ||
 	upstreambranch=cygwin/master
+elif git rev-parse --verify d146c864e8d8cc82e96d72233 >/dev/null 2>&1
+then
+	# gnulib
+	to="--to=bug-gnulib@gnu.org"
+	cc=
+	mid_url='https://lists.gnu.org/archive/cgi-bin/namazu.cgi?submit=Search!&idxname=bug-gnulib&max=20&result=normal&sort=score&query=%2Bmessage-id%3A'
+	upstreambranch=gnulib/master
 else
 	die "Unrecognized project"
 fi
@@ -220,6 +227,7 @@ else
 		sed -n -e 's|.*https://lore.kernel.org/git/|--in-reply-to=|p' \
 			-e 's|.*https://inbox.sourceware.org/cygwin-patches/|--in-reply-to=|p' \
 			-e 's|.*https://public-inbox.org/git/|--in-reply-to=|p' \
+			-e 's|.*https://lists.gnu.org/archive/cgi-bin/namazu.cgi.*message-id%3A|--in-reply-to=|p' \
 			-e 's|.*http://mid.gmane.org/|--in-reply-to=|p')"
 
 	range_diff="--range-diff=$upstreambranch..$latesttag"
